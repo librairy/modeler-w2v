@@ -32,7 +32,7 @@ That's all!! **librairy W2V modeler** should be run in your system now along wit
 
 Instead of deploy all containers as a whole, you can deploy each of them independently. It is useful to run the service in a distributed way deployed in several host-machines.
 
-- **W2V-Modeler**:  
+- **W2V-Modeler**:
 
     ```sh
     $ docker run -it --rm --name modelerW2V librairy/modeler-w2v
