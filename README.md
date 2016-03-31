@@ -1,18 +1,19 @@
-# Librairy Modeler W2V - Files [![Build Status](https://travis-ci.org/librairy/modeler-w2v.svg?branch=develop)](https://travis-ci.org/librairy/modeler-w2v)
+# W2V Modeler [![Release Status](https://travis-ci.org/librairy/modeler-w2v.svg?branch=master)](https://travis-ci.org/librairy/modeler-w2v) [![Dev Status](https://travis-ci.org/librairy/modeler-w2v.svg?branch=develop)](https://travis-ci.org/librairy/modeler-w2v) [![Doc](https://raw.githubusercontent.com/librairy/resources/master/figures/interface.png)](https://rawgit.com/librairy/modeler-w2v/doc/report/index.html)
 
-Build a Word Embedding Model by W2V
+Build a Word Embedding Model based on Word2Vec for a given domain
 
-## Get Start!
+## Get Started!
 
-The only prerequisite to consider is to install [Docker](https://www.docker.com/) in your system.
+A prerequisite to consider is to have installed [Docker-Compose](https://docs.docker.com/compose/) in your system.
 
-Then, run `docker-compose up` by using this file `docker-compose.yml`:  
+You can run this service in a isolated way (see *Distibuted Deployment* section) or as extension of the [explorer](https://github.com/librairy/explorer).
+In that case, add the following services to the existing `docker-compose.yml` file:
+
 
 ```yml
 modelerW2V:
   container_name: modelerW2V
   image: librairy/modeler-w2v
-  restart: always
   links:
       - column-db
       - document-db
@@ -20,14 +21,20 @@ modelerW2V:
       - event-bus
 ```
 
-That's all!! **librairy comparator cos** should be run in your system now!
-
-Instead of deploy all containers as a whole, you can deploy each of them independently. It is useful to run the service distributed in several host-machines.
-
-## FTP Server
+and then, deploy it by typing:
 
 ```sh
-docker run -it --rm --name modelerW2V librairy/modeler-w2v
+$ docker-compose up
 ```
+That's all!! **librairy W2V modeler** should be run in your system now along with **librairy explorer**.
 
-Remember that, by using the flags: `-it --rm`, the services runs in foreground mode, if you want to deploy it in background mode,  or even as a domain service, you should use: `-d --restart=always`
+## Distributed Deployment
+
+Instead of deploy all containers as a whole, you can deploy each of them independently. It is useful to run the service in a distributed way deployed in several host-machines.
+
+- **W2V-Modeler**:
+    ```sh
+    $ docker run -it --rm --name modelerW2V librairy/modeler-w2v
+    ```
+
+Remember that by using the flags: `-it --rm`, the services runs in foreground mode. Instead, you can deploy it in background mode as a domain service by using: `-d --restart=always`
