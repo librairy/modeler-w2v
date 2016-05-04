@@ -1,5 +1,6 @@
 package org.librairy.modeler.w2v.builder;
 
+import com.google.common.base.Strings;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
 import org.librairy.model.domain.resources.User;
@@ -18,6 +19,8 @@ public class AuthorBuilder {
     //TODO this class will dissapear when create Users as entity domains
     public List<User> composeFromMetadata(String authoredBy){
         List <User> users = new ArrayList<>();
+
+        if (Strings.isNullOrEmpty(authoredBy)) return users;
 
         for (String author : authoredBy.split(";")){
             User user = new User();

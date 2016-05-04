@@ -80,7 +80,8 @@ public class WordEmbeddingModeler extends ModelingTask {
         // EMBEDDED relation
         float[] vector = model.getRepresentation(word.getContent());
         EmbeddedIn embeddedIn = Relation.newEmbeddedIn(word.getUri(),domainUri);
-        embeddedIn.setVector(vector);
+        //TODO save Vector in COlumnRepository
+        //embeddedIn.setVector(vector);
         helper.getUdm().save(embeddedIn);
 
         // PAIRED relations

@@ -119,7 +119,8 @@ public class WordEmbeddingTest {
         float[] vector = model.getRepresentation(word.getContent());
 
         EmbeddedIn embedded = Relation.newEmbeddedIn(word.getUri(), domainUri);
-        embedded.setVector(vector);
+        //embedded.setVector(vector);
+        //TODO Save Vector in Column Repository
         helper.getUdm().save(embedded);
 
         // PAIRED relations
@@ -138,7 +139,8 @@ public class WordEmbeddingTest {
 
                 // Embedd to Domain
                 EmbeddedIn embeddedRef = Relation.newEmbeddedIn(wordRef.getUri(), domainUri);
-                embeddedRef.setVector(model.getRepresentation(wordRef.getContent()));
+                //embeddedRef.setVector(model.getRepresentation(wordRef.getContent()));
+                //TODO Save Vector in Column Repository
                 helper.getUdm().save(embeddedRef);
 
             }else{
