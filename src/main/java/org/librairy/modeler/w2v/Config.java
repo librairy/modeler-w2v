@@ -9,9 +9,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 /**
  * Created by cbadenes on 11/01/16.
  */
-@Configuration("modeler")
-@ComponentScan({"org.librairy","es.upm.oeg.epnoi.ressist.parser"})
-@PropertySource({"classpath:modeler.properties"})
+@Configuration("modeler-w2v")
+@ComponentScan({"org.librairy"})
+@PropertySource({"classpath:modeler.properties","classpath:boot.properties"})
 public class Config {
 
     //To resolve ${} in @Value

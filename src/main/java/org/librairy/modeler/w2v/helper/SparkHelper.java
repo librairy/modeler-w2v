@@ -14,11 +14,14 @@ import javax.annotation.PostConstruct;
 @Component
 public class SparkHelper {
 
-    @Value("${librairy.modeler.threads}")
-    String threads; // 2
+    @Value("${spark.master}")
+    private String master;
 
-    @Value("${librairy.modeler.memory}")
-    String memory; // 3g
+    @Value("${librairy.cassandra.contactpoints}")
+    private String cassandraHost;
+
+    @Value("${librairy.cassandra.port}")
+    private String cassandraPort;
 
     private SparkConf conf;
 
@@ -31,10 +34,12 @@ public class SparkHelper {
 
         // Initialize Spark Context
         this.conf = new SparkConf().
-                setMaster("local["+threads+"]").
-                setAppName("DrInventor-Modeler").
-                set("spark.executor.memory", memory).
-                set("spark.driver.maxResultSize","0");
+                setMaster(master).
+                setAppName("librairy-w2v")
+                .set("spark.cassandra.connection.host", cassandraHost)
+                .set("spark.cassandra.connection.port", cassandraPort)
+                //.set("spark.executor.memory", memory)
+                .set("spark.driver.maxResultSize","0");
         sc = new JavaSparkContext(conf);
     }
 

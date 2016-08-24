@@ -22,16 +22,7 @@ public class ModelingHelper {
     URIGenerator uriGenerator;
 
     @Autowired
-    AuthorBuilder authorBuilder;
-
-    @Autowired
-    ModelBuilder modelBuilder;
-
-    @Autowired
-    RegularResourceBuilder regularResourceBuilder;
-
-    @Autowired
-    WordEmbeddingBuilder wordEmbeddingBuilder;
+    W2VBuilder wordEmbeddingBuilder;
 
     @Autowired
     UDM udm;
