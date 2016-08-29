@@ -29,8 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "librairy.neo4j.port                    = 5030",
         "librairy.eventbus.host                 = wiig.dia.fi.upm.es",
         "librairy.eventbus.port                 = 5041",
-        "librairy.modeler.learn                 = false",
-        "librairy.modeler.delay = 200000"
+        "librairy.w2v.event.delay = 200000"
 })
 public class ModelTest {
 

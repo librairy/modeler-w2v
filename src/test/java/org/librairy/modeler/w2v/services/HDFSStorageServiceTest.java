@@ -7,13 +7,20 @@ import org.junit.runner.RunWith;
 import org.librairy.model.domain.resources.Resource;
 import org.librairy.modeler.w2v.Config;
 import org.librairy.modeler.w2v.helper.StorageHelper;
+import org.librairy.modeler.w2v.storage.HDFSStorage;
 import org.librairy.storage.generator.URIGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created on 23/08/16:
@@ -24,44 +31,34 @@ import java.io.File;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
 @TestPropertySource(properties = {
-        "librairy.modeler.learn = false",
-        "librairy.comparator.delay = 1000",
-        "librairy.cassandra.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.cassandra.port = 5011",
-        "librairy.cassandra.keyspace = research",
-        "librairy.elasticsearch.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.elasticsearch.port = 5021",
-        "librairy.neo4j.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.neo4j.port = 5030",
-        "librairy.eventbus.host = localhost",
-        "librairy.eventbus.port = 5041",
-        "spark.filesystem = hdfs://zavijava.dia.fi.upm.es:8020",
-        "librairy.modeler.folder = /librairy/w2v-model",
-        "librairy.vocabulary.size = 10000",
-        "spark.master = local[*]",
-        "librairy.modeler.vector.dimension = 10",
-        "librairy.modeler.maxiterations = 2"
+        "librairy.columndb.host = wiener.dia.fi.upm.es",
+        "librairy.documentdb.host = wiener.dia.fi.upm.es",
+        "librairy.graphdb.host = wiener.dia.fi.upm.es",
+        "librairy.eventbus.host = local",
+        "librairy.w2v.fs = hdfs://zavijava.dia.fi.upm.es:8020"
 })
 public class HDFSStorageServiceTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HDFSStorageServiceTest.class);
+
     @Autowired
-    StorageService storageService;
+    StorageHelper storageHelper;
 
     @Autowired
     URIGenerator uriGenerator;
 
+    /**
+     * set environment LIBRAIRY_FS = hdfs://zavijava.dia.fi.upm.es:8020
+     */
+
     @Test
-    public void write(){
+    public void save(){
 
-        StorageHelper storageHelper = storageService.getHelper();
-
-        File file = new File("out.txt");
+        File file = new File("/Users/cbadenes/Downloads/mesos-0.28.1/build/src/.libs/libmesos.dylib");
 
         System.out.println(file.exists());
 
-        storageHelper.save("/librairy/out.txt", file);
-
-
+        storageHelper.save("/librairy/lib/libmesos.dylib", file);
 
     }
 
@@ -69,14 +66,23 @@ public class HDFSStorageServiceTest {
     @Test
     public void deleteIfExists(){
 
-        StorageHelper storageHelper = storageService.getHelper();
 
-        String domainUri = uriGenerator.from(Resource.Type.DOMAIN, "4f56ab24bb6d815a48b8968a3b157470");
+        String domainId = "4f56ab24bb6d815a48b8968a3b157470";
 
-        String path = storageHelper.getPath(domainUri);
-
-        storageHelper.deleteIfExists(path);
+        storageHelper.deleteIfExists("/librairy");
 
     }
+
+    @Test
+    public void read() throws IOException, URISyntaxException {
+
+        File file = storageHelper.read("/librairy/domains/4f56ab24bb6d815a48b8968a3b157470/stopwords.txt");
+
+        LOG.info("File Path: " + file);
+
+        String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+
+    }
+
 
 }

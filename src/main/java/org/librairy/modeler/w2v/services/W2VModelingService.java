@@ -26,7 +26,7 @@ public class W2VModelingService {
 
     private ThreadPoolTaskScheduler threadpool;
 
-    @Value("${librairy.modeler.delay}")
+    @Value("#{environment['LIBRAIRY_W2V_EVENT_DELAY']?:${librairy.w2v.event.delay}}")
     protected Long delay;
 
     @Autowired

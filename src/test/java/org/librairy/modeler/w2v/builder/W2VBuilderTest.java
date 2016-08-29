@@ -26,23 +26,15 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
 @TestPropertySource(properties = {
-        "librairy.modeler.learn = false",
-        "librairy.comparator.delay = 1000",
-        "librairy.cassandra.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.cassandra.port = 5011",
-        "librairy.cassandra.keyspace = research",
-        "librairy.elasticsearch.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.elasticsearch.port = 5021",
-        "librairy.neo4j.contactpoints = wiener.dia.fi.upm.es",
-        "librairy.neo4j.port = 5030",
-        "librairy.eventbus.host = localhost",
-        "librairy.eventbus.port = 5041",
-        "spark.filesystem = hdfs://zavijava.dia.fi.upm.es:8020", // local
-        "librairy.modeler.folder = /librairy/w2v-model",
-        "librairy.vocabulary.size = 10000",
-        "spark.master = local[*]",
-        "librairy.modeler.vector.dimension = 100",
-        "librairy.modeler.maxiterations = 20"
+        "librairy.columndb.host = wiener.dia.fi.upm.es",
+        "librairy.documentdb.host = wiener.dia.fi.upm.es",
+        "librairy.graphdb.host = wiener.dia.fi.upm.es",
+        "librairy.eventbus.host = local",
+        "librairy.w2v.model.dimension=20",
+        "librairy.w2v.model.iterations=20",
+        "librairy.w2v.fs=hdfs://zavijava.dia.fi.upm.es:8020"
+//        "librairy.w2v.spark=mesos://138.100.15.170:5050"
+//        "librairy.w2v.spark=local[*]"
 })
 public class W2VBuilderTest {
 

@@ -1,13 +1,16 @@
 modelerW2V:
   container_name: modelerW2V
-  image: librairy/modeler-w2v:0.2
+  image: librairy/modeler-w2v:latest
   restart: always
   environment:
-        - LIBRAIRY_FS=file
-        - LIBRAIRY_HOME=.
+        - LIBRAIRY_HOME=/librairy
+        #- LIBRAIRY_FS=hdfs://23.195.26.187:8020
+        #- LIBRAIRY_SPARK=spark://23.195.26.187:7077
+        #- LIBRAIRY_W2V_ITE=20
+        #- LIBRAIRY_W2V_DIM=100
+        #- LIBRAIRY_W2V_SYN=20
     volumes:
-         - ./w2v-models:/usr/local/tomcat/w2v-models/
-         - ./vocabularies:/usr/local/tomcat/vocabularies/
+         - ./librairy:/librairy
     external_links:
          - column-db
          - document-db
