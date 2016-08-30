@@ -1,7 +1,7 @@
-package org.librairy.modeler.w2v.models.word;
+package org.librairy.modeler.w2v.models;
 
+import lombok.Getter;
 import org.apache.spark.mllib.feature.Word2VecModel;
-import org.librairy.modeler.w2v.models.WordDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
@@ -18,6 +18,7 @@ public class W2VModel {
 
     private static final Logger logger = LoggerFactory.getLogger(W2VModel.class);
 
+    @Getter
     private final Word2VecModel model;
     private final String id;
     private final Integer maxWords;
@@ -30,7 +31,7 @@ public class W2VModel {
 
     public List<WordDistribution> find(String term){
 
-        List<WordDistribution> similars = new ArrayList<>();
+        List<WordDistribution> similarWords = new ArrayList<>();
 
         try{
             Tuple2<String, Object>[] synonyms = model.findSynonyms(term, maxWords);
@@ -38,17 +39,17 @@ public class W2VModel {
                 WordDistribution wordDistribution = new WordDistribution();
                 wordDistribution.setWord(tuple._1());
                 wordDistribution.setWeight((Double) tuple._2());
-                similars.add(wordDistribution);
+                similarWords.add(wordDistribution);
             }
-            logger.debug("W2V Distribution of term: '"+ term + "' in '"+id+"':" + similars);
+            logger.debug("W2V Distribution of term: '"+ term + "' in '"+id+"':" + similarWords);
         }catch (Exception e){
             logger.warn(e.getMessage() + " '" + id + "'");
         }
 
-        return similars;
+        return similarWords;
     }
 
-    public float[] getRepresentation(String word){
+    public float[] getVector(String word){
         Option<float[]> result = model.getVectors().get(word);
         return (result.isDefined())? result.get() : new float[]{};
     }

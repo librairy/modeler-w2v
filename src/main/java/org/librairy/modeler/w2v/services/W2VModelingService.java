@@ -1,10 +1,7 @@
 package org.librairy.modeler.w2v.services;
 
-import org.librairy.model.domain.relations.Relation;
-import org.librairy.model.domain.resources.Analysis;
-import org.librairy.model.domain.resources.Domain;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
-import org.librairy.modeler.w2v.models.word.WordEmbeddingModeler;
+import org.librairy.modeler.w2v.scheduler.W2VTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
@@ -22,15 +18,15 @@ import java.util.concurrent.ScheduledFuture;
  * Created by cbadenes on 11/01/16.
  */
 @Component
-public class WordEmbeddingModelingService {
+public class W2VModelingService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WordEmbeddingModelingService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(W2VModelingService.class);
 
     private ConcurrentHashMap<String,ScheduledFuture<?>> tasks;
 
     private ThreadPoolTaskScheduler threadpool;
 
-    @Value("${librairy.modeler.delay}")
+    @Value("#{environment['LIBRAIRY_W2V_EVENT_DELAY']?:${librairy.w2v.event.delay}}")
     protected Long delay;
 
     @Autowired
@@ -50,11 +46,11 @@ public class WordEmbeddingModelingService {
     public void buildModel(String domainUri){
 
         // TODO Implement Multi Domain
-        LOG.info("Planning a new task to build a word2vec model for words in domain: " + domainUri);
+        LOG.info("Planning a new task to build a new word2vec model in domain: " + domainUri);
 
         ScheduledFuture<?> task = tasks.get(domainUri);
         if (task != null) task.cancel(false);
-        task = this.threadpool.schedule(new WordEmbeddingModeler(domainUri,helper), new Date(System.currentTimeMillis() + delay));
+        task = this.threadpool.schedule(new W2VTask(domainUri,helper), new Date(System.currentTimeMillis() + delay));
         tasks.put(domainUri,task);
 
     }

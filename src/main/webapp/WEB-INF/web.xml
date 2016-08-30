@@ -71,11 +71,11 @@
         </init-param>
         <init-param>
             <param-name>api.title</param-name>
-            <param-value>modeler</param-value>
+            <param-value>w2v modeler</param-value>
         </init-param>
         <init-param>
             <param-name>api.description</param-name>
-            <param-value>modeler service</param-value>
+            <param-value>w2v modeler service</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>

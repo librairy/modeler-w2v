@@ -2,6 +2,7 @@ package org.librairy.modeler.w2v.helper;
 
 import lombok.Data;
 import org.librairy.modeler.w2v.builder.*;
+import org.librairy.modeler.w2v.spark.AbstractSparkHelper;
 import org.librairy.storage.UDM;
 import org.librairy.storage.generator.URIGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,26 +17,17 @@ import org.springframework.stereotype.Component;
 public class ModelingHelper {
 
     @Autowired
-    SparkHelper sparkHelper;
+    AbstractSparkHelper sparkHelper;
 
     @Autowired
     URIGenerator uriGenerator;
 
     @Autowired
-    AuthorBuilder authorBuilder;
-
-    @Autowired
-    ModelBuilder modelBuilder;
-
-    @Autowired
-    RegularResourceBuilder regularResourceBuilder;
-
-    @Autowired
-    WordEmbeddingBuilder wordEmbeddingBuilder;
+    W2VBuilder wordEmbeddingBuilder;
 
     @Autowired
     UDM udm;
 
-    @Value("${librairy.comparator.threshold}")
+    @Value("#{environment['LIBRAIRY_W2V_COMPARATOR_THRESHOLD']?:'${librairy.w2v.comparator.threshold}'}")
     Double similarityThreshold;
 }

@@ -7,7 +7,7 @@ import org.librairy.model.modules.EventBus;
 import org.librairy.model.modules.EventBusSubscriber;
 import org.librairy.model.modules.RoutingKey;
 import org.librairy.modeler.w2v.cache.CacheManager;
-import org.librairy.modeler.w2v.services.WordEmbeddingModelingService;
+import org.librairy.modeler.w2v.services.W2VModelingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class WordCreatedEventHandler implements EventBusSubscriber {
     protected EventBus eventBus;
 
     @Autowired
-    WordEmbeddingModelingService modelingService;
+    W2VModelingService modelingService;
 
     @Autowired
     CacheManager cacheManager;
