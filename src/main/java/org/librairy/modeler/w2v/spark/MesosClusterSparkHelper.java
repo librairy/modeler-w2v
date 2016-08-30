@@ -24,7 +24,7 @@ public class MesosClusterSparkHelper extends AbstractSparkHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(MesosClusterSparkHelper.class);
 
-    @Value("#{environment['LIBRAIRY_SPARK']?:'${librairy.w2v.spark}'}")
+    @Value("#{environment['LIBRAIRY_SPARK_URI']?:'${librairy.w2v.spark}'}")
     private String master;
 
     @Value("#{environment['MESOS_SPARK_HOME']?:'/var/lib/spark'}")

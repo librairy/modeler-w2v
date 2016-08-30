@@ -31,8 +31,8 @@ import java.util.List;
         "librairy.graphdb.host = wiener.dia.fi.upm.es",
         "librairy.eventbus.host = local",
         "librairy.w2v.model.dimension=20",
-        "librairy.w2v.model.iterations=20",
-        "librairy.w2v.fs=hdfs://zavijava.dia.fi.upm.es:8020"
+        "librairy.w2v.model.iterations=2"
+//        "librairy.w2v.fs=hdfs://zavijava.dia.fi.upm.es:8020"
 //        "librairy.w2v.spark=mesos://138.100.15.170:5050"
 //        "librairy.w2v.spark=local[*]"
 })

@@ -14,7 +14,7 @@ public class MesosClusterCondition implements Condition{
 
     @Override
     public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-        String envVar  = System.getenv("LIBRAIRY_SPARK");
+        String envVar  = System.getenv("LIBRAIRY_SPARK_URI");
         return (Strings.isNullOrEmpty(envVar)
                 && conditionContext.getEnvironment().getProperty("librairy.w2v.spark").startsWith("mesos"))
                 ||

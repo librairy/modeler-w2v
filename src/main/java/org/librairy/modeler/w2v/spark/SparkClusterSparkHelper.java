@@ -14,25 +14,16 @@ import org.springframework.stereotype.Component;
 @Conditional(SparkClusterCondition.class)
 public class SparkClusterSparkHelper extends AbstractSparkHelper {
 
-    @Value("#{environment['LIBRAIRY_SPARK']?:'${librairy.w2v.spark}'}")
+    @Value("#{environment['LIBRAIRY_SPARK_URI']?:'${librairy.w2v.spark}'}")
     private String master;
-
-    @Value("#{environment['SPARK_MEMORY']?:'-1'}")
-    private String sparkMem;
 
     @Override
     protected String getMaster() {
         return master;
     }
 
-    @Autowired
-    StorageHelper storageHelper;
-
     @Override
     protected SparkConf initializeConf(SparkConf conf) {
-
-        if (!sparkMem.equalsIgnoreCase("-1"))
-                return conf.set("spark.executor.memory", sparkMem);
 
         return conf;
     }
