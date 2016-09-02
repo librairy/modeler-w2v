@@ -11,11 +11,11 @@ import org.apache.spark.sql.cassandra.CassandraSQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-import org.apache.spark.util.SizeEstimator;
+import org.librairy.computing.cluster.Partitioner;
+import org.librairy.computing.helper.SparkHelper;
+import org.librairy.computing.helper.StorageHelper;
 import org.librairy.model.domain.resources.Item;
 import org.librairy.model.domain.resources.Resource;
-import org.librairy.modeler.w2v.spark.AbstractSparkHelper;
-import org.librairy.modeler.w2v.helper.StorageHelper;
 import org.librairy.modeler.w2v.models.W2VModel;
 import org.librairy.storage.UDM;
 import org.librairy.storage.generator.URIGenerator;
@@ -55,7 +55,10 @@ public class W2VBuilder {
     StorageHelper storageHelper;
 
     @Autowired
-    AbstractSparkHelper sparkHelper;
+    SparkHelper sparkHelper;
+
+    @Autowired
+    Partitioner partitioner;
 
     public W2VModel build(String domainUri){
 
@@ -93,6 +96,8 @@ public class W2VBuilder {
                         DataTypes.createStructField(Item.TOKENS, DataTypes.StringType, false)
                 });
 
+        String whereClause = "uri in (" + uris.stream().map(uri -> "'"+uri+"'").collect(Collectors.joining(", ")) + ")";
+
         DataFrame df = cc
                 .read()
                 .format("org.apache.spark.sql.cassandra")
@@ -101,7 +106,9 @@ public class W2VBuilder {
                 .option("charset", "UTF-8")
                 .option("mode","DROPMALFORMED")
                 .options(ImmutableMap.of("table", "items", "keyspace", "research"))
-                .load();
+                .load()
+                .where(whereClause)
+                ;
 
         LOG.info("Splitting each document into words ..");
         DataFrame words = new RegexTokenizer()
@@ -126,7 +133,6 @@ public class W2VBuilder {
 
         JavaRDD<List<String>> input = filteredWords
                 .toJavaRDD()
-                .filter(row -> uris.contains(row.getString(0)))
                 .map(row -> Arrays.asList(row.getString(1).split(" ")))
                 .cache();
 
@@ -134,13 +140,8 @@ public class W2VBuilder {
         LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"] from " + uris.size() + " " +
                 "documents");
 
-        long estimatedBytes = SizeEstimator.estimate(input);
 
-        long bytesPerTask   = 500000;
-
-        int estimatedPartitions = Long.valueOf(estimatedBytes / bytesPerTask).intValue();
-
-        LOG.info("Estimated Partitions set to: " + estimatedPartitions);
+        int estimatedPartitions = partitioner.estimatedFor(input);
 
         LOG.info("Training a Word2Vec model with the documents from: " + id);
         Word2Vec word2Vec = new Word2Vec();

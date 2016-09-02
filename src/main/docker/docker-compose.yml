@@ -3,7 +3,7 @@ services:
   modelerW2V:
     container_name: modelerW2V
     image: librairy/modeler-w2v:latest
-    restart: always
+    #restart: always
     volumes:
          - ./librairy:/librairy
     external_links:

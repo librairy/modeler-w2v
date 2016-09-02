@@ -1,7 +1,7 @@
 package org.librairy.modeler.w2v.services;
 
 import org.librairy.modeler.w2v.helper.ModelingHelper;
-import org.librairy.modeler.w2v.scheduler.W2VTask;
+import org.librairy.modeler.w2v.tasks.W2VTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
