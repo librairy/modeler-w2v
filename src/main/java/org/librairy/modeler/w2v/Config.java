@@ -11,7 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  */
 @Configuration("modeler-w2v")
 @ComponentScan({"org.librairy"})
-@PropertySource({"classpath:modeler.properties","classpath:boot.properties"})
+@PropertySource({"classpath:w2v-modeler.properties","classpath:boot.properties","classpath:computing.properties"})
 public class Config {
 
     //To resolve ${} in @Value

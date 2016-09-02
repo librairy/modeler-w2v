@@ -1,4 +1,4 @@
-package org.librairy.modeler.w2v.scheduler;
+package org.librairy.modeler.w2v.tasks;
 
 import org.librairy.model.domain.relations.EmbeddedIn;
 import org.librairy.model.domain.relations.PairsWith;

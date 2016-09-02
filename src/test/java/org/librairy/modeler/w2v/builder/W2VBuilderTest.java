@@ -27,14 +27,14 @@ import java.util.List;
 @ContextConfiguration(classes = Config.class)
 @TestPropertySource(properties = {
         "librairy.columndb.host = wiener.dia.fi.upm.es",
+        "librairy.columndb.port = 5011",
         "librairy.documentdb.host = wiener.dia.fi.upm.es",
+        "librairy.documentdb.port = 5021",
         "librairy.graphdb.host = wiener.dia.fi.upm.es",
+        "librairy.graphdb.port = 5030",
         "librairy.eventbus.host = local",
         "librairy.w2v.model.dimension=20",
         "librairy.w2v.model.iterations=2"
-//        "librairy.w2v.fs=hdfs://zavijava.dia.fi.upm.es:8020"
-//        "librairy.w2v.spark=mesos://138.100.15.170:5050"
-//        "librairy.w2v.spark=local[*]"
 })
 public class W2VBuilderTest {
 
