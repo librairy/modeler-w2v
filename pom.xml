@@ -543,26 +543,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <finalName>librairy-dependencies</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-            </plugin>
-
-
             <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -686,44 +666,6 @@
                         <contextPath>/modeler-w2v</contextPath>
                     </webApp>
                     <useTestScope>true</useTestScope>
-                    <systemProperties>
-                        <systemProperty>
-                            <name>LIBRAIRY_HOME</name>
-                            <value>.</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>COLUMN_DB_HOST</name>
-                            <value>127.0.0.1</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>COLUMN_DB_PORT</name>
-                            <value>5011</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>DOCUMENT_DB_HOST</name>
-                            <value>127.0.0.1</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>DOCUMENT_DB_PORT</name>
-                            <value>5021</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>GRAPH_DB_HOST</name>
-                            <value>127.0.0.1</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>GRAPH_DB_PORT</name>
-                            <value>5030</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>MESSAGE_BROKER_HOST</name>
-                            <value>127.0.0.1</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>MESSAGE_BROKER_PORT</name>
-                            <value>5041</value>
-                        </systemProperty>
-                    </systemProperties>
                 </configuration>
             </plugin>
 
