@@ -83,10 +83,16 @@ public class W2VTask implements Runnable{
                                 .getWord());
                         relatedWord.setUri(relatedWordUri);
                         helper.getUdm().save(relatedWord);
+
+                        LOG.info("A new word has been created: " + relatedWordUri + " in domain: " + domainUri);
                     }else{
                         relatedWordUri = result.get(0).getUri();
                     }
 
+                    // associate to domain
+                    helper.getUdm().save(Relation.newEmbeddedIn(relatedWordUri,domainUri));
+
+                    // create pair relation
                     PairsWith pair = Relation.newPairsWith(word.getUri(), relatedWordUri, domainUri);
                     pair.setWeight(wordDistribution.getWeight());
                     helper.getUdm().save(pair);

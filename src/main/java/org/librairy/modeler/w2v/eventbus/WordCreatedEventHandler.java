@@ -6,14 +6,15 @@ import org.librairy.model.modules.BindingKey;
 import org.librairy.model.modules.EventBus;
 import org.librairy.model.modules.EventBusSubscriber;
 import org.librairy.model.modules.RoutingKey;
-import org.librairy.modeler.w2v.cache.CacheManager;
 import org.librairy.modeler.w2v.services.W2VModelingService;
+import org.librairy.storage.UDM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * Created by cbadenes on 11/01/16.
@@ -30,11 +31,12 @@ public class WordCreatedEventHandler implements EventBusSubscriber {
     W2VModelingService modelingService;
 
     @Autowired
-    CacheManager cacheManager;
+    UDM udm;
 
     @PostConstruct
     public void init(){
-        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Resource.Type.WORD, Resource.State.CREATED), "w2v-modeler-item");
+        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Resource.Type.TOPIC, Resource.State.CREATED),
+                "w2v-modeler-item");
         LOG.info("Trying to register as subscriber of '" + bindingKey + "' events ..");
         eventBus.subscribe(this,bindingKey );
         LOG.info("registered successfully");
@@ -42,16 +44,21 @@ public class WordCreatedEventHandler implements EventBusSubscriber {
 
     @Override
     public void handle(Event event) {
-        LOG.info("Document created event received: " + event);
+        LOG.debug("new TOPIC event received: " + event);
         try{
             Resource resource = event.to(Resource.class);
 
             // BUNDLES relation
-            String domainUri = cacheManager.getDomain(resource.getUri());
+            List<Resource> domain = udm.find(Resource.Type.DOMAIN).from(Resource.Type.TOPIC, resource
+                    .getUri());
 
-            modelingService.buildModel(domainUri);
+            if (domain.isEmpty()) {
+                LOG.warn("No domain found from topic: " + resource.getUri());
+                return;
+            }
+
+            modelingService.buildModel(domain.get(0).getUri());
         } catch (Exception e){
-            // TODO Notify to event-bus when source has not been added
             LOG.error("Error scheduling a new w2v model from domain: " + event, e);
         }
     }

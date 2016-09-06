@@ -10,6 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -32,6 +33,8 @@ public class W2VModelingService {
     @Autowired
     ModelingHelper helper;
 
+    SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ssZ");
+
     @PostConstruct
     public void setup(){
         this.tasks = new ConcurrentHashMap<>();
@@ -45,8 +48,8 @@ public class W2VModelingService {
 
     public void buildModel(String domainUri){
 
-        // TODO Implement Multi Domain
-        LOG.info("Planning a new task to build a new word2vec model in domain: " + domainUri);
+        LOG.info("A new task for building a word embedding (W2V) for the domain: " + domainUri + " has been scheduled" +
+                "at " + timeFormatter.format(new Date(System.currentTimeMillis() + delay)));
 
         ScheduledFuture<?> task = tasks.get(domainUri);
         if (task != null) task.cancel(false);
