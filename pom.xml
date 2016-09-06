@@ -4,7 +4,7 @@
 
     <groupId>org.librairy</groupId>
     <artifactId>librairy-modeler-w2v</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.7</version>
     <packaging>war</packaging>
     <name>modeler-w2v</name>
     <description>Create a Word Embedding model based on Word2Vec</description>
@@ -703,6 +703,7 @@
                 <version>0.4.11</version>
                 <configuration>
                     <imageName>${docker.image.prefix}/${project.name}</imageName>
+                    <serverId>dockerhub</serverId>
                     <dockerDirectory>src/main/docker</dockerDirectory>
                     <resources>
                         <resource>
