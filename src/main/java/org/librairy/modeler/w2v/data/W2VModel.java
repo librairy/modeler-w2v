@@ -1,4 +1,4 @@
-package org.librairy.modeler.w2v.models;
+package org.librairy.modeler.w2v.data;
 
 import lombok.Getter;
 import org.apache.spark.mllib.feature.Word2VecModel;

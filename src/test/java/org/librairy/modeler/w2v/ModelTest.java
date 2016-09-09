@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
-import org.librairy.modeler.w2v.tasks.W2VTask;
+import org.librairy.modeler.w2v.tasks.TrainingTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -38,6 +38,6 @@ public class ModelTest {
 
     @Test
     public void buildModel(){
-        new W2VTask("http://librairy.org/domains/default",helper).run();
+        new TrainingTask("http://librairy.org/domains/default",helper).run();
     }
 }

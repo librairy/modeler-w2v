@@ -5,13 +5,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.librairy.modeler.w2v.Config;
-import org.librairy.modeler.w2v.models.W2VModel;
-import org.librairy.modeler.w2v.models.WordDistribution;
+import org.librairy.modeler.w2v.data.W2VModel;
+import org.librairy.modeler.w2v.data.WordDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.Duration;
@@ -25,28 +24,17 @@ import java.util.List;
 @Category(IntegrationTest.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
-@TestPropertySource(properties = {
-        "librairy.columndb.host = wiener.dia.fi.upm.es",
-        "librairy.columndb.port = 5011",
-        "librairy.documentdb.host = wiener.dia.fi.upm.es",
-        "librairy.documentdb.port = 5021",
-        "librairy.graphdb.host = wiener.dia.fi.upm.es",
-        "librairy.graphdb.port = 5030",
-        "librairy.eventbus.host = local",
-        "librairy.w2v.model.dimension=20",
-        "librairy.w2v.model.iterations=2"
-})
-public class W2VBuilderTest {
+public class ModelTrainerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(W2VBuilderTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ModelTrainerTest.class);
 
     @Autowired
-    W2VBuilder wordEmbeddingBuilder;
+    ModelTrainer wordEmbeddingBuilder;
 
     @Test
     public void simulateByDomain(){
 
-        String domainURI = "http://drinventor.eu/domains/4f56ab24bb6d815a48b8968a3b157470";
+        String domainURI = "http://librairy.org/domains/default";
 
 
         LocalTime start = LocalTime.now();

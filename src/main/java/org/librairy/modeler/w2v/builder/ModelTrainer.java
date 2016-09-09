@@ -16,7 +16,7 @@ import org.librairy.computing.helper.SparkHelper;
 import org.librairy.computing.helper.StorageHelper;
 import org.librairy.model.domain.resources.Item;
 import org.librairy.model.domain.resources.Resource;
-import org.librairy.modeler.w2v.models.W2VModel;
+import org.librairy.modeler.w2v.data.W2VModel;
 import org.librairy.storage.UDM;
 import org.librairy.storage.generator.URIGenerator;
 import org.slf4j.Logger;
@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
  * Created by cbadenes on 13/01/16.
  */
 @Component
-public class W2VBuilder {
+public class ModelTrainer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(W2VBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ModelTrainer.class);
 
     @Value("#{environment['LIBRAIRY_W2V_MODEL_DIMENSION']?:${librairy.w2v.model.dimension}}")
     Integer vectorSize;
