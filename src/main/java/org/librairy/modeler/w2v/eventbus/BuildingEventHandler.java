@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016. Universidad Politecnica de Madrid
+ *
+ * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
+ *
+ */
+
 package org.librairy.modeler.w2v.eventbus;
 
 import org.librairy.model.Event;
@@ -11,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -19,6 +27,7 @@ import javax.annotation.PostConstruct;
  *
  * @author cbadenes
  */
+@Component
 public class BuildingEventHandler implements EventBusSubscriber {
 
     private static final Logger LOG = LoggerFactory.getLogger(BuildingEventHandler.class);

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016. Universidad Politecnica de Madrid
+ *
+ * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
+ *
+ */
+
 package org.librairy.modeler.w2v.services;
 
 import org.librairy.modeler.w2v.tasks.TrainingTask;
