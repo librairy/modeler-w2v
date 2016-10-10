@@ -39,7 +39,7 @@ public abstract class AbstractService {
         this.tasks = new ConcurrentHashMap<>();
 
         this.threadpool = new ThreadPoolTaskScheduler();
-        this.threadpool.setPoolSize(50);
+        this.threadpool.setPoolSize(1);
         this.threadpool.initialize();
 
     }
