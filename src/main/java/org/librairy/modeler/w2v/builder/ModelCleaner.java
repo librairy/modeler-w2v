@@ -44,18 +44,18 @@ public class ModelCleaner {
         LOG.info("and now from graph-database...");
         graphExecutor.execute("match ()-[r:PAIRS_WITH { domain : {0} }]->() delete r", ImmutableMap.of("0", domainUri));
 
-        LOG.info("deleting words in domain: " + domainUri + " ...");
-        columnRepository.findBy(Relation.Type.EMBEDDED_IN, "domain", domainUri).forEach(rel -> {
-            String wordUri = rel.getStartUri();
+//        LOG.info("deleting words in domain: " + domainUri + " ...");
+//        columnRepository.findBy(Relation.Type.EMBEDDED_IN, "domain", domainUri).forEach(rel -> {
+//            String wordUri = rel.getStartUri();
+//
+//            // Delete relation
+//            udm.delete(Relation.Type.EMBEDDED_IN).byUri(rel.getUri());
+//
+//            // Delete Word
+//            udm.delete(Resource.Type.WORD).byUri(wordUri);
+//        });
 
-            // Delete relation
-            udm.delete(Relation.Type.EMBEDDED_IN).byUri(rel.getUri());
-
-            // Delete Word
-            udm.delete(Resource.Type.WORD).byUri(wordUri);
-        });
-
-        LOG.info("all words deleted");
+        LOG.info("all word pairing deleted");
     }
 
 

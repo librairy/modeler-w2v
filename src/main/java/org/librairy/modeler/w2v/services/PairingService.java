@@ -32,7 +32,7 @@ public class PairingService extends AbstractService{
 
         ScheduledFuture<?> task = tasks.get(domainUri);
         if (task != null) task.cancel(false);
-        task = this.threadpool.schedule(new PairingTask(wordUri, domainUri,helper), new Date(System.currentTimeMillis
+        task = this.threadpool.schedule(new PairingTask(wordUri, domainUri, helper), new Date(System.currentTimeMillis
                 () +
                 delay));
         tasks.put(domainUri,task);

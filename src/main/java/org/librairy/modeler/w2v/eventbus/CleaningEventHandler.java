@@ -59,7 +59,7 @@ public class CleaningEventHandler implements EventBusSubscriber {
 
             String domainUri = relation.getStartUri();
 
-            // Schedule deleteing previous words
+            // Schedule deleting previous words
             cleaningService.clean(domainUri,delay/2);
 
         } catch (Exception e){
