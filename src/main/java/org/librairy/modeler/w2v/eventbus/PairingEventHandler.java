@@ -9,11 +9,13 @@ package org.librairy.modeler.w2v.eventbus;
 
 import org.librairy.model.Event;
 import org.librairy.model.domain.relations.Relation;
+import org.librairy.model.domain.resources.Resource;
 import org.librairy.model.modules.BindingKey;
 import org.librairy.model.modules.EventBus;
 import org.librairy.model.modules.EventBusSubscriber;
 import org.librairy.model.modules.RoutingKey;
 import org.librairy.modeler.w2v.services.PairingService;
+import org.librairy.storage.UDM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +39,13 @@ public class PairingEventHandler implements EventBusSubscriber {
     @Autowired
     PairingService pairingService;
 
+    @Autowired
+    UDM udm;
+
     @PostConstruct
     public void init(){
-        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Relation.Type.EMBEDDED_IN, Relation.State.CREATED),
-                "w2v-modeler-domain-new-word");
+        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Relation.Type.MENTIONS_FROM_TOPIC, Relation.State.CREATED),
+                "w2v-modeler-topic-new-word");
         LOG.info("Trying to register as subscriber of '" + bindingKey + "' events ..");
         eventBus.subscribe(this,bindingKey );
         LOG.info("registered successfully");
@@ -52,10 +57,13 @@ public class PairingEventHandler implements EventBusSubscriber {
         try{
             Relation relation = event.to(Relation.class);
 
-            String domainUri = relation.getEndUri();
-            String wordUri = relation.getStartUri();
+            String topicUri = relation.getStartUri();
+            String wordUri  = relation.getEndUri();
 
-            pairingService.pair(wordUri, domainUri,1000);
+            udm.find(Resource.Type.DOMAIN).from(Resource.Type.TOPIC, topicUri).forEach(domain -> {
+                pairingService.pair(wordUri, domain.getUri(),1000);
+            });
+
 
         } catch (Exception e){
             LOG.error("Error scheduling a new topic model for Items from domain: " + event, e);

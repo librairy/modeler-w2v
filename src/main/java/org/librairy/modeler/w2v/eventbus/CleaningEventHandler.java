@@ -60,7 +60,7 @@ public class CleaningEventHandler implements EventBusSubscriber {
             String domainUri = relation.getStartUri();
 
             // Schedule deleting previous words
-            cleaningService.clean(domainUri,delay/2);
+            cleaningService.clean(domainUri,1000);
 
         } catch (Exception e){
             LOG.error("Error scheduling a new topic model for Items from domain: " + event, e);
