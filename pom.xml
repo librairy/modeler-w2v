@@ -11,7 +11,7 @@
 
     <groupId>org.librairy</groupId>
     <artifactId>librairy-modeler-w2v</artifactId>
-    <version>0.13-SNAPSHOT</version>
+    <version>0.13</version>
     <packaging>war</packaging>
     <name>modeler-w2v</name>
     <description>Create a Word Embedding model based on Word2Vec</description>
@@ -605,7 +605,7 @@
             <plugin>
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
-                <version>0.13-SNAPSHOT</version>
+                <version>0.12</version>
                 <executions>
                     <execution>
                         <id>jar-deploy</id>
