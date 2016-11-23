@@ -7,13 +7,13 @@
 
 package org.librairy.modeler.w2v.eventbus;
 
-import org.librairy.model.Event;
-import org.librairy.model.domain.relations.Relation;
-import org.librairy.model.modules.BindingKey;
-import org.librairy.model.modules.EventBus;
-import org.librairy.model.modules.EventBusSubscriber;
-import org.librairy.model.modules.RoutingKey;
-import org.librairy.modeler.w2v.services.CleaningService;
+import org.librairy.boot.model.Event;
+import org.librairy.boot.model.domain.resources.Resource;
+import org.librairy.boot.model.modules.BindingKey;
+import org.librairy.boot.model.modules.EventBus;
+import org.librairy.boot.model.modules.EventBusSubscriber;
+import org.librairy.boot.model.modules.RoutingKey;
+import org.librairy.boot.storage.UDM;
 import org.librairy.modeler.w2v.services.ModelingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,23 +29,26 @@ import javax.annotation.PostConstruct;
  * @author cbadenes
  */
 @Component
-public class CleaningEventHandler implements EventBusSubscriber {
+public class DomainUpdatedEventHandler implements EventBusSubscriber {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CleaningEventHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DomainUpdatedEventHandler.class);
 
     @Autowired
     protected EventBus eventBus;
 
     @Autowired
-    CleaningService cleaningService;
+    ModelingService modelingService;
+
+    @Autowired
+    UDM udm;
 
     @Value("#{environment['LIBRAIRY_W2V_EVENT_DELAY']?:${librairy.w2v.event.delay}}")
     protected Long delay;
 
     @PostConstruct
     public void init(){
-        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Relation.Type.CONTAINS, Relation.State.CREATED),
-                "w2v-modeler-domain-contain-clean-pairs");
+        BindingKey bindingKey = BindingKey.of(RoutingKey.of(Resource.Type.DOMAIN, Resource.State.UPDATED),
+                "modeler.w2v.domain.updated");
         LOG.info("Trying to register as subscriber of '" + bindingKey + "' events ..");
         eventBus.subscribe(this,bindingKey );
         LOG.info("registered successfully");
@@ -53,14 +56,11 @@ public class CleaningEventHandler implements EventBusSubscriber {
 
     @Override
     public void handle(Event event) {
-        LOG.debug("New topic created event received: " + event);
+        LOG.debug("Domain updated event received: " + event);
         try{
-            Relation relation = event.to(Relation.class);
+            Resource resource = event.to(Resource.class);
 
-            String domainUri = relation.getStartUri();
-
-            // Schedule deleting previous words
-            cleaningService.clean(domainUri,1000);
+            modelingService.train(resource.getUri(),delay);
 
         } catch (Exception e){
             LOG.error("Error scheduling a new topic model for Items from domain: " + event, e);

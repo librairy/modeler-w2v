@@ -8,7 +8,7 @@
 package org.librairy.modeler.w2v.services;
 
 import org.librairy.modeler.w2v.tasks.PairingTask;
-import org.librairy.storage.executor.ParallelExecutor;
+import org.librairy.boot.storage.executor.ParallelExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,8 @@ public class PairingService extends AbstractService{
     }
 
     public void pair(String wordUri, String domainUri, long delay){
-        executor.execute(new PairingTask(wordUri, domainUri, helper));
+        //TODO remove it
+//        executor.execute(new PairingTask(wordUri, domainUri, helper));
     }
 
 }

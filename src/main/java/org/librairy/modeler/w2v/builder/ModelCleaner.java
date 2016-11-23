@@ -8,11 +8,11 @@
 package org.librairy.modeler.w2v.builder;
 
 import com.google.common.collect.ImmutableMap;
-import org.librairy.model.domain.relations.Relation;
-import org.librairy.model.domain.resources.Resource;
-import org.librairy.storage.UDM;
-import org.librairy.storage.system.column.repository.UnifiedColumnRepository;
-import org.librairy.storage.system.graph.template.TemplateExecutor;
+import org.librairy.boot.model.domain.relations.Relation;
+import org.librairy.boot.model.domain.resources.Resource;
+import org.librairy.boot.storage.UDM;
+import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
+import org.librairy.boot.storage.system.graph.template.TemplateExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,23 +37,24 @@ public class ModelCleaner {
 
     public void delete(String domainUri){
 
-        LOG.debug("Deleting pair relations in domain: " + domainUri + " ..");
-        columnRepository.findBy(Relation.Type.PAIRS_WITH, "domain", domainUri).forEach(rel->columnRepository.delete
-                (Relation.Type.PAIRS_WITH,rel.getUri()));
-
-        LOG.debug("and now from graph-database...");
-        graphExecutor.execute("match ()-[r:PAIRS_WITH { domain : {0} }]->() delete r", ImmutableMap.of("0", domainUri));
-
-        columnRepository.findBy(Relation.Type.EMBEDDED_IN, "domain", domainUri).forEach(rel -> {
-            String wordUri = rel.getStartUri();
-
-            // Delete relation
-            udm.delete(Relation.Type.EMBEDDED_IN).byUri(rel.getUri());
-
-            // Delete Word
-            LOG.info("deleting word " + wordUri + " from domain: " + domainUri);
-            udm.delete(Resource.Type.WORD).byUri(wordUri);
-        });
+        //TODO remove it
+//        LOG.debug("Deleting pair relations in domain: " + domainUri + " ..");
+//        columnRepository.findBy(Relation.Type.PAIRS_WITH, "domain", domainUri).forEach(rel->columnRepository.delete
+//                (Relation.Type.PAIRS_WITH,rel.getUri()));
+//
+//        LOG.debug("and now from graph-database...");
+//        graphExecutor.execute("match ()-[r:PAIRS_WITH { domain : {0} }]->() delete r", ImmutableMap.of("0", domainUri));
+//
+//        columnRepository.findBy(Relation.Type.EMBEDDED_IN, "domain", domainUri).forEach(rel -> {
+//            String wordUri = rel.getStartUri();
+//
+//            // Delete relation
+//            udm.delete(Relation.Type.EMBEDDED_IN).byUri(rel.getUri());
+//
+//            // Delete Word
+//            LOG.info("deleting word " + wordUri + " from domain: " + domainUri);
+//            udm.delete(Resource.Type.WORD).byUri(wordUri);
+//        });
 
         LOG.debug("all word pairing deleted");
     }

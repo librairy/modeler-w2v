@@ -7,7 +7,7 @@
 
 package org.librairy.modeler.w2v.tasks;
 
-import org.librairy.model.domain.resources.Resource;
+import org.librairy.boot.model.domain.resources.Resource;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -32,15 +32,18 @@ public class TrainingTask implements Runnable{
     @Override
     public void run() {
 
-        try{
+        helper.getUnifiedExecutor().execute(() -> {
+            try{
 
-            LOG.info("Building a new W2V model in domain: " + domainUri);
-            W2VModel model = helper.getWordEmbeddingBuilder().build(domainUri);
+                LOG.info("Building a new W2V model in domain: " + domainUri);
+                helper.getWordEmbeddingBuilder().build(domainUri);
 
-        }catch (RuntimeException e){
-            LOG.warn(e.getMessage(),e);
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-        }
+            }catch (RuntimeException e){
+                LOG.warn(e.getMessage(),e);
+            } catch (Exception e) {
+                LOG.warn(e.getMessage(), e);
+            }
+        });
+
     }
 }

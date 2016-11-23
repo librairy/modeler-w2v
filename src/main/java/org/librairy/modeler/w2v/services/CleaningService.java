@@ -29,10 +29,11 @@ public class CleaningService extends AbstractService{
         LOG.info("A new task for clean words for the domain: " + domainUri + " has been scheduled" +
                 "at " + timeFormatter.format(new Date(System.currentTimeMillis() + delay)));
 
-        ScheduledFuture<?> task = tasks.get(domainUri);
-        if (task != null) task.cancel(false);
-        task = this.threadpool.schedule(new CleaningTask(domainUri,helper), new Date(System.currentTimeMillis() + delay));
-        tasks.put(domainUri,task);
+        // TODO remove it
+//        ScheduledFuture<?> task = tasks.get(domainUri);
+//        if (task != null) task.cancel(false);
+//        task = this.threadpool.schedule(new CleaningTask(domainUri,helper), new Date(System.currentTimeMillis() + delay));
+//        tasks.put(domainUri,task);
 
     }
 

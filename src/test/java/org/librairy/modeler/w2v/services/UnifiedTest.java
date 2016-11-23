@@ -44,12 +44,9 @@ public class UnifiedTest {
 
         String domainUri = "http://librairy.org/domains/default";
 
-        cleaningService.clean(domainUri,1000);
+        modelingService.train(domainUri,1000);
 
-
-        modelingService.train(domainUri,5000);
-
-        Thread.currentThread().sleep(6000000);
+        Thread.currentThread().sleep(Integer.MAX_VALUE);
         LOG.info("time to sleep..");
 
     }

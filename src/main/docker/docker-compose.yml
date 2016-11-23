@@ -1,19 +1,23 @@
 version: "2"
 services:
-  modelerW2V:
-    container_name: modelerW2V
-    image: librairy/modeler-w2v:latest
-    #restart: always
-    volumes:
-         - ./librairy:/librairy
-    external_links:
-         - column-db
-         - document-db
-         - graph-db
-         - event-bus
-    networks:
-             - "lnet"
+ modeler-lda:
+  container_name: modeler-w2v
+  image: librairy/modeler-w2v:1.0
+  restart: always
+  env_file: ../librairy.env
+  volumes: ["./models:/librairy/domains"]
+#  mem_limit: 32g
+#  memswap_limit: 34g
+#  cpuset: 8-11
+  ports: ["4041:4040"]
+  external_links:
+   - column-db
+   - document-db
+   - graph-db
+   - event-bus
+  networks:
+   - "lnet"
 networks:
   lnet:
-    external:
-      name: distribution_lnet
+   external:
+    name: storage_lnet

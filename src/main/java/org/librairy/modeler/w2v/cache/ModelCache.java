@@ -12,7 +12,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.librairy.modeler.w2v.builder.ModelTrainer;
 import org.librairy.modeler.w2v.data.W2VModel;
-import org.librairy.storage.generator.URIGenerator;
+import org.librairy.boot.storage.generator.URIGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

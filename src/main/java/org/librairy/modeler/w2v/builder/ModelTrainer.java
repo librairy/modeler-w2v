@@ -21,11 +21,12 @@ import org.apache.spark.sql.types.StructType;
 import org.librairy.computing.cluster.Partitioner;
 import org.librairy.computing.helper.SparkHelper;
 import org.librairy.computing.helper.StorageHelper;
-import org.librairy.model.domain.resources.Item;
-import org.librairy.model.domain.resources.Resource;
+import org.librairy.boot.model.domain.resources.Item;
+import org.librairy.boot.model.domain.resources.Resource;
 import org.librairy.modeler.w2v.data.W2VModel;
-import org.librairy.storage.UDM;
-import org.librairy.storage.generator.URIGenerator;
+import org.librairy.boot.storage.UDM;
+import org.librairy.boot.storage.generator.URIGenerator;
+import org.librairy.modeler.w2v.helper.ModelingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class ModelTrainer {
     UDM udm;
 
     @Autowired
-    StorageHelper storageHelper;
+    ModelingHelper helper;
 
     @Autowired
     SparkHelper sparkHelper;
@@ -69,53 +70,52 @@ public class ModelTrainer {
 
     public W2VModel build(String domainUri){
 
-        // Reading Uris
-        LOG.info("Finding items in domain:" + domainUri);
-        List<String> uris = udm.find(Resource.Type.ITEM)
-                .from(Resource.Type.DOMAIN, domainUri)
-                .parallelStream()
-                .map(res -> res.getUri())
-                .collect(Collectors.toList());
-
-        if (uris.isEmpty()) throw new RuntimeException("No Items found in domain: " + domainUri);
-
-        String domainId = URIGenerator.retrieveId(domainUri);
-
         // Train model
-        W2VModel model = build(domainId,uris);
+        W2VModel model = buildModel(domainUri);
 
         // Persist model
-        persist(model.getModel(),domainId);
+        persist(model.getModel(),URIGenerator.retrieveId(domainUri));
 
         return model;
     }
 
 
-    public W2VModel build(String id, List<String> uris){
+    private W2VModel buildModel(String domainUri){
 
         // Create a Data Frame from Cassandra query
-        CassandraSQLContext cc = new CassandraSQLContext(sparkHelper.getContext().sc());
-
-        // Define a schema
-        StructType schema = DataTypes
-                .createStructType(new StructField[] {
-                        DataTypes.createStructField(Resource.URI, DataTypes.StringType, false),
-                        DataTypes.createStructField(Item.TOKENS, DataTypes.StringType, false)
-                });
-
-        String whereClause = "uri in (" + uris.stream().map(uri -> "'"+uri+"'").collect(Collectors.joining(", ")) + ")";
-
-        DataFrame df = cc
+        DataFrame containsDF = helper.getCassandraHelper().getContext()
                 .read()
                 .format("org.apache.spark.sql.cassandra")
-                .schema(schema)
+                .schema(DataTypes
+                        .createStructType(new StructField[] {
+                                DataTypes.createStructField("starturi", DataTypes.StringType, false),
+                                DataTypes.createStructField("enduri", DataTypes.StringType, false)
+                        }))
+                .option("inferSchema", "false") // Automatically infer data types
+                .option("charset", "UTF-8")
+                .option("mode","DROPMALFORMED")
+                .options(ImmutableMap.of("table", "contains", "keyspace", "research"))
+                .load()
+                .where("starturi='"+domainUri+"'")
+                ;
+
+        DataFrame resourcesDF = helper.getCassandraHelper().getContext()
+                .read()
+                .format("org.apache.spark.sql.cassandra")
+                .schema(DataTypes
+                        .createStructType(new StructField[] {
+                                DataTypes.createStructField(Resource.URI, DataTypes.StringType, false),
+                                DataTypes.createStructField(Item.TOKENS, DataTypes.StringType, false)
+                        }))
                 .option("inferSchema", "false") // Automatically infer data types
                 .option("charset", "UTF-8")
                 .option("mode","DROPMALFORMED")
                 .options(ImmutableMap.of("table", "items", "keyspace", "research"))
                 .load()
-                .where(whereClause)
                 ;
+
+        DataFrame df = containsDF.
+                join(resourcesDF, containsDF.col("enduri").equalTo(resourcesDF.col("uri")));
 
         LOG.info("Splitting each document into words ..");
         DataFrame words = new RegexTokenizer()
@@ -126,10 +126,12 @@ public class ModelTrainer {
                 .transform(df);
 
 
-        String stopwordPath = storageHelper.path(id,"stopwords.txt");
-        List<String> stopwords = storageHelper.exists(stopwordPath)?
-                sparkHelper.getContext().textFile(storageHelper.absolutePath(stopwordPath)).collect() : Collections
+        String id = URIGenerator.retrieveId(domainUri);
+        String stopwordPath = helper.getStorageHelper().path(id,"stopwords.txt");
+        List<String> stopwords = helper.getStorageHelper().exists(stopwordPath)?
+                sparkHelper.getContext().textFile(helper.getStorageHelper().absolutePath(stopwordPath)).collect() : Collections
                 .EMPTY_LIST;
+
         LOG.info("Filtering by stopwords ["+stopwords.size()+"]");
         DataFrame filteredWords = new StopWordsRemover()
                 .setInputCol("words")
@@ -140,17 +142,15 @@ public class ModelTrainer {
 
         JavaRDD<List<String>> input = filteredWords
                 .toJavaRDD()
-                .map(row -> Arrays.asList(row.getString(1).split(" ")))
+                .map(row -> Arrays.asList(row.getString(3).split(" ")))
                 .cache();
 
-
-        LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"] from " + uris.size() + " " +
-                "documents");
+        LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"]");
 
 
         int estimatedPartitions = partitioner.estimatedFor(input);
 
-        LOG.info("Training a Word2Vec model with the documents from: " + id);
+        LOG.info("Training a Word2Vec model with the documents from: " + domainUri);
         Word2Vec word2Vec = new Word2Vec();
         word2Vec.setNumPartitions(estimatedPartitions);
         word2Vec.setVectorSize(vectorSize);
@@ -164,13 +164,13 @@ public class ModelTrainer {
     public void persist(Word2VecModel model, String id ){
         try {
 
-            String path = storageHelper.path(id,"w2v");
-            storageHelper.deleteIfExists(path);
+            String path = helper.getStorageHelper().path(id,"w2v");
+            helper.getStorageHelper().deleteIfExists(path);
 
-            String absolutePath = storageHelper.absolutePath(path);
+            String absolutePath = helper.getStorageHelper().absolutePath(path);
             LOG.info("Saving (or updating) the model at: " + absolutePath);
             model.save(sparkHelper.getContext().sc(), absolutePath);
-
+            LOG.info("W2V model saved successfully!");
         }catch (Exception e){
             if (e instanceof FileAlreadyExistsException) {
                 LOG.warn(e.getMessage());
@@ -182,7 +182,7 @@ public class ModelTrainer {
     }
 
     public W2VModel load(String id){
-        String path = storageHelper.absolutePath(storageHelper.path(id,"w2v"));
+        String path = helper.getStorageHelper().absolutePath(helper.getStorageHelper().path(id,"w2v"));
         LOG.info("loading word2vec model from :" + path);
         Word2VecModel model = Word2VecModel.load(sparkHelper.getContext().sc(), path);
         return new W2VModel(id,maxWords,model);
