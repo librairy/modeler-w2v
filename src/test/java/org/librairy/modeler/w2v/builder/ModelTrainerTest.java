@@ -42,7 +42,7 @@ public class ModelTrainerTest {
     @Test
     public void simulateByDomain(){
 
-        String domainURI = "http://librairy.org/domains/default";
+        String domainURI = "http://librairy.org/domains/90b559119ab48e8cf4310bf92f6b4eab";
 
 
         LocalTime start = LocalTime.now();

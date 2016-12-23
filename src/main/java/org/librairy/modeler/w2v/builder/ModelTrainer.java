@@ -18,6 +18,7 @@ import org.apache.spark.sql.cassandra.CassandraSQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.librairy.boot.storage.dao.DBSessionManager;
 import org.librairy.computing.cluster.Partitioner;
 import org.librairy.computing.helper.SparkHelper;
 import org.librairy.computing.helper.StorageHelper;
@@ -46,6 +47,8 @@ import java.util.stream.Collectors;
 public class ModelTrainer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ModelTrainer.class);
+
+    private static final int partitions = Runtime.getRuntime().availableProcessors() * 3;
 
     @Value("#{environment['LIBRAIRY_W2V_MODEL_DIMENSION']?:${librairy.w2v.model.dimension}}")
     Integer vectorSize;
@@ -82,40 +85,22 @@ public class ModelTrainer {
 
     private W2VModel buildModel(String domainUri){
 
-        // Create a Data Frame from Cassandra query
-        DataFrame containsDF = helper.getCassandraHelper().getContext()
-                .read()
-                .format("org.apache.spark.sql.cassandra")
-                .schema(DataTypes
-                        .createStructType(new StructField[] {
-                                DataTypes.createStructField("starturi", DataTypes.StringType, false),
-                                DataTypes.createStructField("enduri", DataTypes.StringType, false)
-                        }))
-                .option("inferSchema", "false") // Automatically infer data types
-                .option("charset", "UTF-8")
-                .option("mode","DROPMALFORMED")
-                .options(ImmutableMap.of("table", "contains", "keyspace", "research"))
-                .load()
-                .where("starturi='"+domainUri+"'")
-                ;
 
-        DataFrame resourcesDF = helper.getCassandraHelper().getContext()
+        DataFrame df = helper.getCassandraHelper().getContext()
                 .read()
                 .format("org.apache.spark.sql.cassandra")
                 .schema(DataTypes
-                        .createStructType(new StructField[] {
+                        .createStructType(new StructField[]{
                                 DataTypes.createStructField(Resource.URI, DataTypes.StringType, false),
                                 DataTypes.createStructField(Item.TOKENS, DataTypes.StringType, false)
                         }))
                 .option("inferSchema", "false") // Automatically infer data types
                 .option("charset", "UTF-8")
-                .option("mode","DROPMALFORMED")
-                .options(ImmutableMap.of("table", "items", "keyspace", "research"))
+                .option("mode", "DROPMALFORMED")
+                .options(ImmutableMap.of("table", "items", "keyspace", DBSessionManager.getKeyspaceFromUri(domainUri)))
                 .load()
-                ;
-
-        DataFrame df = containsDF.
-                join(resourcesDF, containsDF.col("enduri").equalTo(resourcesDF.col("uri")));
+                .repartition(partitions)
+                .cache();;
 
         LOG.info("Splitting each document into words ..");
         DataFrame words = new RegexTokenizer()
@@ -142,7 +127,7 @@ public class ModelTrainer {
 
         JavaRDD<List<String>> input = filteredWords
                 .toJavaRDD()
-                .map(row -> Arrays.asList(row.getString(3).split(" ")))
+                .map(row -> Arrays.asList(row.getString(1).split(" ")))
                 .cache();
 
         LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"]");
