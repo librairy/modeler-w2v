@@ -24,6 +24,8 @@ import org.librairy.computing.helper.SparkHelper;
 import org.librairy.computing.helper.StorageHelper;
 import org.librairy.boot.model.domain.resources.Item;
 import org.librairy.boot.model.domain.resources.Resource;
+import org.librairy.modeler.w2v.cache.DimensionCache;
+import org.librairy.modeler.w2v.cache.IterationsCache;
 import org.librairy.modeler.w2v.data.W2VModel;
 import org.librairy.boot.storage.UDM;
 import org.librairy.boot.storage.generator.URIGenerator;
@@ -38,6 +40,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -50,17 +53,14 @@ public class ModelTrainer {
 
     private static final int partitions = Runtime.getRuntime().availableProcessors() * 3;
 
-    @Value("#{environment['LIBRAIRY_W2V_MODEL_DIMENSION']?:${librairy.w2v.model.dimension}}")
-    Integer vectorSize;
+    @Autowired
+    DimensionCache dimCache;
 
-    @Value("#{environment['LIBRAIRY_W2V_MODEL_ITERATIONS']?:${librairy.w2v.model.iterations}}")
-    Integer maxIterations;
+    @Autowired
+    IterationsCache iterationsCache;
 
     @Value("#{environment['LIBRAIRY_W2V_COMPARATOR_SYNONYMS']?:${librairy.w2v.comparator.synonyms}}")
     Integer maxWords;
-
-    @Autowired
-    UDM udm;
 
     @Autowired
     ModelingHelper helper;
@@ -100,7 +100,7 @@ public class ModelTrainer {
                 .options(ImmutableMap.of("table", "items", "keyspace", DBSessionManager.getKeyspaceFromUri(domainUri)))
                 .load()
                 .repartition(partitions)
-                .cache();;
+                .cache();
 
         LOG.info("Splitting each document into words ..");
         DataFrame words = new RegexTokenizer()
@@ -130,6 +130,11 @@ public class ModelTrainer {
                 .map(row -> Arrays.asList(row.getString(1).split(" ")))
                 .cache();
 
+        input.take(1); // force cache
+
+        Integer vectorSize = dimCache.getDimension(domainUri);
+        Integer maxIterations = iterationsCache.getIterations(domainUri);
+
         LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"]");
 
 
@@ -148,6 +153,7 @@ public class ModelTrainer {
 
     public void persist(Word2VecModel model, String id ){
         try {
+            helper.getStorageHelper().create(id);
 
             String path = helper.getStorageHelper().path(id,"w2v");
             helper.getStorageHelper().deleteIfExists(path);
