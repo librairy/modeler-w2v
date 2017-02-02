@@ -11,7 +11,7 @@
 
     <groupId>org.librairy</groupId>
     <artifactId>librairy-modeler-w2v</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3</version>
     <packaging>war</packaging>
     <name>modeler-w2v</name>
     <description>Create a Word Embedding model based on Word2Vec</description>
@@ -73,7 +73,7 @@
         <jetty.version>8.1.9.v20130131</jetty.version>
         <junit.version>4.12</junit.version>
         <librairy.metrics.version>1.16</librairy.metrics.version>
-        <librairy.computing.version>0.14</librairy.computing.version>
+        <librairy.computing.version>0.15</librairy.computing.version>
         <librairy.boot.version>1.4</librairy.boot.version>
         <log4j.version>1.2.17</log4j.version>
         <log4j.slf4j.version>1.7.14</log4j.slf4j.version>

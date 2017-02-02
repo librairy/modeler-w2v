@@ -36,12 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Created by cbadenes on 13/01/16.
@@ -50,8 +49,6 @@ import java.util.stream.Collectors;
 public class ModelTrainer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ModelTrainer.class);
-
-    private static final int partitions = Runtime.getRuntime().availableProcessors() * 3;
 
     @Autowired
     DimensionCache dimCache;
@@ -68,8 +65,12 @@ public class ModelTrainer {
     @Autowired
     SparkHelper sparkHelper;
 
-    @Autowired
-    Partitioner partitioner;
+    private Integer partitions;
+
+    @PostConstruct
+    public void setup(){
+        this.partitions = this.sparkHelper.getPartitions();
+    }
 
     public W2VModel build(String domainUri){
 
@@ -138,11 +139,9 @@ public class ModelTrainer {
         LOG.info("Building a new W2V Model [dim="+vectorSize+"|maxIter="+maxIterations+"]");
 
 
-        int estimatedPartitions = partitioner.estimatedFor(input);
-
         LOG.info("Training a Word2Vec model with the documents from: " + domainUri);
         Word2Vec word2Vec = new Word2Vec();
-        word2Vec.setNumPartitions(estimatedPartitions);
+        word2Vec.setNumPartitions(partitions);
         word2Vec.setVectorSize(vectorSize);
         word2Vec.setNumIterations(maxIterations);
         Word2VecModel model = word2Vec.fit(input);

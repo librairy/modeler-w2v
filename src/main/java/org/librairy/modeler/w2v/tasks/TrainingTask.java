@@ -32,7 +32,7 @@ public class TrainingTask implements Runnable{
     @Override
     public void run() {
 
-        helper.getUnifiedExecutor().execute(() -> {
+        helper.getSparkHelper().execute(() -> {
             try{
 
                 LOG.info("Building a new W2V model in domain: " + domainUri);

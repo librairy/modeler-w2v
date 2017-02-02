@@ -15,9 +15,7 @@ import org.librairy.modeler.w2v.cache.ModelCache;
 import org.librairy.boot.storage.UDM;
 import org.librairy.boot.storage.generator.URIGenerator;
 import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
-import org.librairy.modeler.w2v.utils.UnifiedExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -50,9 +48,6 @@ public class ModelingHelper {
 
     @Autowired
     UDM udm;
-
-    @Autowired
-    UnifiedExecutor unifiedExecutor;
 
     @Autowired
     CassandraHelper cassandraHelper;
