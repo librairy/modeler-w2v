@@ -8,6 +8,8 @@
 package org.librairy.modeler.w2v.tasks;
 
 import org.librairy.boot.model.domain.resources.Resource;
+import org.librairy.boot.storage.generator.URIGenerator;
+import org.librairy.computing.cluster.ComputingContext;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,10 @@ public class PairingTask implements Runnable{
     @Override
     public void run() {
 
+        final ComputingContext context = helper.getComputingHelper().newContext("w2v.pairing."+ URIGenerator.retrieveId(domainUri));
+
         try{
+
 
             LOG.info("Pairing word: " + wordUri + " to similar words in domain: " + domainUri);
 
@@ -49,12 +54,14 @@ public class PairingTask implements Runnable{
                 return;
             }
 
-            helper.getPairing().relateWord(word.get().asWord(), domainUri);
+            helper.getPairing().relateWord(context, word.get().asWord(), domainUri);
 
         }catch (RuntimeException e){
             LOG.warn(e.getMessage(),e);
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
+        } finally {
+            helper.getComputingHelper().close(context);
         }
     }
 

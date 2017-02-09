@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.librairy.boot.storage.generator.URIGenerator;
+import org.librairy.computing.cluster.ComputingContext;
+import org.librairy.computing.helper.ComputingHelper;
 import org.librairy.modeler.w2v.Config;
 import org.librairy.modeler.w2v.data.W2VModel;
 import org.librairy.modeler.w2v.data.WordDistribution;
@@ -39,6 +41,9 @@ public class ModelTrainerTest {
     @Autowired
     ModelTrainer wordEmbeddingBuilder;
 
+    @Autowired
+    ComputingHelper computingHelper;
+
     @Test
     public void simulateByDomain(){
 
@@ -47,7 +52,9 @@ public class ModelTrainerTest {
 
         LocalTime start = LocalTime.now();
 
-        W2VModel model = wordEmbeddingBuilder.build(domainURI);
+        final ComputingContext context = computingHelper.newContext("test.w2v.simulatedByDomain");
+
+        W2VModel model = wordEmbeddingBuilder.build(context, domainURI);
 
         LocalTime end = LocalTime.now();
 
@@ -61,7 +68,7 @@ public class ModelTrainerTest {
 
         System.out.println("Elapsed Time: " + elapsedTime.getSeconds() + "secs");
 
-
+        computingHelper.close(context);
     }
 
     @Test
@@ -69,10 +76,11 @@ public class ModelTrainerTest {
 
         String domainURI = "http://librairy.org/domains/default";
 
+        final ComputingContext context = computingHelper.newContext("test.w2v.simulatedByDomain");
 
         LocalTime start = LocalTime.now();
 
-        W2VModel model = wordEmbeddingBuilder.load(URIGenerator.retrieveId(domainURI));
+        W2VModel model = wordEmbeddingBuilder.load(context, URIGenerator.retrieveId(domainURI));
 
         LocalTime end = LocalTime.now();
 
@@ -85,6 +93,7 @@ public class ModelTrainerTest {
 
         System.out.println("Elapsed Time: " + elapsedTime.getSeconds() + "secs");
 
+        computingHelper.close(context);
 
     }
 }

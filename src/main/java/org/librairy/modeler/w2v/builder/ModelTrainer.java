@@ -14,21 +14,16 @@ import org.apache.spark.ml.feature.StopWordsRemover;
 import org.apache.spark.mllib.feature.Word2Vec;
 import org.apache.spark.mllib.feature.Word2VecModel;
 import org.apache.spark.sql.DataFrame;
-import org.apache.spark.sql.cassandra.CassandraSQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
-import org.librairy.boot.storage.dao.DBSessionManager;
-import org.librairy.computing.cluster.Partitioner;
-import org.librairy.computing.helper.SparkHelper;
-import org.librairy.computing.helper.StorageHelper;
 import org.librairy.boot.model.domain.resources.Item;
 import org.librairy.boot.model.domain.resources.Resource;
+import org.librairy.boot.storage.dao.DBSessionManager;
+import org.librairy.boot.storage.generator.URIGenerator;
+import org.librairy.computing.cluster.ComputingContext;
 import org.librairy.modeler.w2v.cache.DimensionCache;
 import org.librairy.modeler.w2v.cache.IterationsCache;
 import org.librairy.modeler.w2v.data.W2VModel;
-import org.librairy.boot.storage.UDM;
-import org.librairy.boot.storage.generator.URIGenerator;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,32 +56,23 @@ public class ModelTrainer {
     @Autowired
     ModelingHelper helper;
 
-    @Autowired
-    SparkHelper sparkHelper;
 
-    private Integer partitions;
-
-    @PostConstruct
-    public void setup(){
-        this.partitions = this.sparkHelper.getPartitions();
-    }
-
-    public W2VModel build(String domainUri){
+    public W2VModel build(ComputingContext context, String domainUri){
 
         // Train model
-        W2VModel model = buildModel(domainUri);
+        W2VModel model = buildModel(context, domainUri);
 
         // Persist model
-        persist(model.getModel(),URIGenerator.retrieveId(domainUri));
+        persist(context, model.getModel(),URIGenerator.retrieveId(domainUri));
 
         return model;
     }
 
 
-    private W2VModel buildModel(String domainUri){
+    private W2VModel buildModel(ComputingContext context, String domainUri){
 
 
-        DataFrame df = helper.getCassandraHelper().getContext()
+        DataFrame df = context.getCassandraSQLContext()
                 .read()
                 .format("org.apache.spark.sql.cassandra")
                 .schema(DataTypes
@@ -100,7 +85,7 @@ public class ModelTrainer {
                 .option("mode", "DROPMALFORMED")
                 .options(ImmutableMap.of("table", "items", "keyspace", DBSessionManager.getKeyspaceFromUri(domainUri)))
                 .load()
-                .repartition(partitions)
+                .repartition(context.getRecommendedPartitions())
                 .cache();
 
         LOG.info("Splitting each document into words ..");
@@ -115,7 +100,7 @@ public class ModelTrainer {
         String id = URIGenerator.retrieveId(domainUri);
         String stopwordPath = helper.getStorageHelper().path(id,"stopwords.txt");
         List<String> stopwords = helper.getStorageHelper().exists(stopwordPath)?
-                sparkHelper.getContext().textFile(helper.getStorageHelper().absolutePath(stopwordPath)).collect() : Collections
+                context.getSparkContext().textFile(helper.getStorageHelper().absolutePath(stopwordPath)).collect() : Collections
                 .EMPTY_LIST;
 
         LOG.info("Filtering by stopwords ["+stopwords.size()+"]");
@@ -141,7 +126,7 @@ public class ModelTrainer {
 
         LOG.info("Training a Word2Vec model with the documents from: " + domainUri);
         Word2Vec word2Vec = new Word2Vec();
-        word2Vec.setNumPartitions(partitions);
+        word2Vec.setNumPartitions(context.getRecommendedPartitions());
         word2Vec.setVectorSize(vectorSize);
         word2Vec.setNumIterations(maxIterations);
         Word2VecModel model = word2Vec.fit(input);
@@ -150,16 +135,18 @@ public class ModelTrainer {
     }
 
 
-    public void persist(Word2VecModel model, String id ){
+    public void persist(ComputingContext context, Word2VecModel model, String id ){
         try {
-            helper.getStorageHelper().create(id);
+            helper.getStorageHelper().create(helper.getStorageHelper().absolutePath(helper.getStorageHelper().path
+                    (id, "")));
 
             String path = helper.getStorageHelper().path(id,"w2v");
             helper.getStorageHelper().deleteIfExists(path);
 
-            String absolutePath = helper.getStorageHelper().absolutePath(path);
+            String absolutePath = helper.getStorageHelper().absolutePath(helper.getStorageHelper().path(id,
+                    "w2v/model"));
             LOG.info("Saving (or updating) the model at: " + absolutePath);
-            model.save(sparkHelper.getContext().sc(), absolutePath);
+            model.save(context.getSparkContext().sc(), absolutePath);
             LOG.info("W2V model saved successfully!");
         }catch (Exception e){
             if (e instanceof FileAlreadyExistsException) {
@@ -171,10 +158,10 @@ public class ModelTrainer {
 
     }
 
-    public W2VModel load(String id){
-        String path = helper.getStorageHelper().absolutePath(helper.getStorageHelper().path(id,"w2v"));
+    public W2VModel load(ComputingContext context, String id){
+        String path = helper.getStorageHelper().absolutePath(helper.getStorageHelper().path(id,"w2v/model"));
         LOG.info("loading word2vec model from :" + path);
-        Word2VecModel model = Word2VecModel.load(sparkHelper.getContext().sc(), path);
+        Word2VecModel model = Word2VecModel.load(context.getSparkContext().sc(), path);
         return new W2VModel(id,maxWords,model);
     }
 

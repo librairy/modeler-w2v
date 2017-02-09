@@ -7,9 +7,6 @@
 
 package org.librairy.modeler.w2v.builder;
 
-import com.google.common.collect.ImmutableMap;
-import org.librairy.boot.model.domain.relations.Relation;
-import org.librairy.boot.model.domain.resources.Resource;
 import org.librairy.boot.storage.UDM;
 import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
 import org.librairy.boot.storage.system.graph.template.TemplateExecutor;

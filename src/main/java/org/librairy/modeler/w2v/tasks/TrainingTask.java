@@ -7,6 +7,8 @@
 
 package org.librairy.modeler.w2v.tasks;
 
+import org.librairy.boot.storage.generator.URIGenerator;
+import org.librairy.computing.cluster.ComputingContext;
 import org.librairy.modeler.w2v.helper.ModelingHelper;
 import org.librairy.modeler.w2v.data.W2VModel;
 import org.slf4j.Logger;
@@ -32,11 +34,13 @@ public class TrainingTask implements Runnable{
     @Override
     public void run() {
 
-        helper.getSparkHelper().execute(() -> {
+        final ComputingContext context = helper.getComputingHelper().newContext("w2v.training."+ URIGenerator.retrieveId(domainUri));
+
+        helper.getComputingHelper().execute(context, () -> {
             try{
 
                 LOG.info("Building a new W2V model in domain: " + domainUri);
-                helper.getWordEmbeddingBuilder().build(domainUri);
+                helper.getWordEmbeddingBuilder().build(context, domainUri);
 
             }catch (RuntimeException e){
                 LOG.warn(e.getMessage(),e);

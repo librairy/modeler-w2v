@@ -7,18 +7,15 @@
 
 package org.librairy.modeler.w2v.builder;
 
-import org.librairy.computing.cluster.Partitioner;
-import org.librairy.computing.helper.SparkHelper;
-import org.librairy.computing.helper.StorageHelper;
 import org.librairy.boot.model.domain.relations.PairsWith;
 import org.librairy.boot.model.domain.relations.Relation;
 import org.librairy.boot.model.domain.resources.Resource;
 import org.librairy.boot.model.domain.resources.Word;
+import org.librairy.boot.storage.UDM;
+import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
+import org.librairy.computing.cluster.ComputingContext;
 import org.librairy.modeler.w2v.cache.ModelCache;
 import org.librairy.modeler.w2v.data.W2VModel;
-import org.librairy.boot.storage.UDM;
-import org.librairy.boot.storage.generator.URIGenerator;
-import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +47,11 @@ public class ModelPairing {
     @Autowired
     ModelCache cache;
 
-    public void relateWord(Word word, String domainUri){
+    public void relateWord(ComputingContext context, Word word, String domainUri){
         // PAIRED relations
         W2VModel model;
         try {
-            model = cache.get(domainUri);
+            model = cache.get(context, domainUri);
         }catch (Exception e){
             LOG.warn("No W2V model found for domain: " + domainUri, e);
             return;

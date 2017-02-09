@@ -8,13 +8,15 @@
 package org.librairy.modeler.w2v.helper;
 
 import lombok.Data;
-import org.librairy.computing.helper.SparkHelper;
-import org.librairy.computing.helper.StorageHelper;
-import org.librairy.modeler.w2v.builder.*;
-import org.librairy.modeler.w2v.cache.ModelCache;
 import org.librairy.boot.storage.UDM;
 import org.librairy.boot.storage.generator.URIGenerator;
 import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
+import org.librairy.computing.helper.ComputingHelper;
+import org.librairy.computing.helper.StorageHelper;
+import org.librairy.modeler.w2v.builder.ModelCleaner;
+import org.librairy.modeler.w2v.builder.ModelPairing;
+import org.librairy.modeler.w2v.builder.ModelTrainer;
+import org.librairy.modeler.w2v.cache.ModelCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class ModelingHelper {
 
     @Autowired
-    SparkHelper sparkHelper;
+    ComputingHelper computingHelper;
 
     @Autowired
     URIGenerator uriGenerator;
@@ -48,10 +50,6 @@ public class ModelingHelper {
 
     @Autowired
     UDM udm;
-
-    @Autowired
-    CassandraHelper cassandraHelper;
-
     @Autowired
     StorageHelper storageHelper;
 
