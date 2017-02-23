@@ -39,30 +39,34 @@ public class PairingTask implements Runnable{
     @Override
     public void run() {
 
-        final ComputingContext context = helper.getComputingHelper().newContext("w2v.pairing."+ URIGenerator.retrieveId(domainUri));
-
         try{
+            final ComputingContext context = helper.getComputingHelper().newContext("w2v.pairing."+ URIGenerator.retrieveId(domainUri));
+            try{
 
 
-            LOG.info("Pairing word: " + wordUri + " to similar words in domain: " + domainUri);
+                LOG.info("Pairing word: " + wordUri + " to similar words in domain: " + domainUri);
 
-            // Reading word
-            Optional<Resource> word = helper.getUdm().read(Resource.Type.WORD).byUri(wordUri);
+                // Reading word
+                Optional<Resource> word = helper.getUdm().read(Resource.Type.WORD).byUri(wordUri);
 
-            if (!word.isPresent()){
-                LOG.warn("No word found by uri: " + wordUri);
-                return;
+                if (!word.isPresent()){
+                    LOG.warn("No word found by uri: " + wordUri);
+                    return;
+                }
+
+                helper.getPairing().relateWord(context, word.get().asWord(), domainUri);
+
+            }catch (RuntimeException e){
+                LOG.warn(e.getMessage(),e);
+            } catch (Exception e) {
+                LOG.warn(e.getMessage(), e);
+            } finally {
+                helper.getComputingHelper().close(context);
             }
-
-            helper.getPairing().relateWord(context, word.get().asWord(), domainUri);
-
-        }catch (RuntimeException e){
-            LOG.warn(e.getMessage(),e);
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-        } finally {
-            helper.getComputingHelper().close(context);
+        }catch (InterruptedException e){
+            LOG.info("Execution interrupted.");
         }
+
     }
 
 

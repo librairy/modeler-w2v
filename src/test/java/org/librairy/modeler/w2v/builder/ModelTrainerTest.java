@@ -45,7 +45,7 @@ public class ModelTrainerTest {
     ComputingHelper computingHelper;
 
     @Test
-    public void simulateByDomain(){
+    public void simulateByDomain() throws InterruptedException {
 
         String domainURI = "http://librairy.org/domains/90b559119ab48e8cf4310bf92f6b4eab";
 
@@ -72,7 +72,7 @@ public class ModelTrainerTest {
     }
 
     @Test
-    public void loadByDomain(){
+    public void loadByDomain() throws InterruptedException {
 
         String domainURI = "http://librairy.org/domains/default";
 

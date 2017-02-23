@@ -34,20 +34,25 @@ public class TrainingTask implements Runnable{
     @Override
     public void run() {
 
-        final ComputingContext context = helper.getComputingHelper().newContext("w2v.training."+ URIGenerator.retrieveId(domainUri));
+        final ComputingContext context;
+        try {
+            context = helper.getComputingHelper().newContext("w2v.training."+ URIGenerator.retrieveId(domainUri));
+            helper.getComputingHelper().execute(context, () -> {
+                try{
 
-        helper.getComputingHelper().execute(context, () -> {
-            try{
+                    LOG.info("Building a new W2V model in domain: " + domainUri);
+                    helper.getWordEmbeddingBuilder().build(context, domainUri);
 
-                LOG.info("Building a new W2V model in domain: " + domainUri);
-                helper.getWordEmbeddingBuilder().build(context, domainUri);
+                }catch (RuntimeException e){
+                    LOG.warn(e.getMessage(),e);
+                } catch (Exception e) {
+                    LOG.warn(e.getMessage(), e);
+                }
+            });
+        } catch (InterruptedException e) {
+            LOG.info("Execution interrupted.");
+        }
 
-            }catch (RuntimeException e){
-                LOG.warn(e.getMessage(),e);
-            } catch (Exception e) {
-                LOG.warn(e.getMessage(), e);
-            }
-        });
 
     }
 }
