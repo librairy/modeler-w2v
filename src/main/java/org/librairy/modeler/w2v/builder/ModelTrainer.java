@@ -96,6 +96,7 @@ public class ModelTrainer {
                 .setOutputCol("words")
                 .transform(df);
 
+        df.unpersist();
 
         String id = URIGenerator.retrieveId(domainUri);
         String stopwordPath = helper.getStorageHelper().path(id,"stopwords.txt");
@@ -130,6 +131,8 @@ public class ModelTrainer {
         word2Vec.setVectorSize(vectorSize);
         word2Vec.setNumIterations(maxIterations);
         Word2VecModel model = word2Vec.fit(input);
+
+        input.unpersist();
 
         return new W2VModel(id,maxWords,model);
     }
