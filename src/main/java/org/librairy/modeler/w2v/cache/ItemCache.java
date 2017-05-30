@@ -15,6 +15,7 @@ import org.librairy.boot.model.domain.resources.Domain;
 import org.librairy.boot.model.domain.resources.Resource;
 import org.librairy.boot.model.modules.EventBus;
 import org.librairy.boot.model.modules.RoutingKey;
+import org.librairy.boot.storage.dao.DomainsDao;
 import org.librairy.boot.storage.dao.ItemsDao;
 import org.librairy.boot.storage.exception.DataNotFound;
 import org.librairy.modeler.w2v.services.ModelingService;
@@ -39,6 +40,9 @@ public class ItemCache {
     ItemsDao itemsDao;
 
     @Autowired
+    DomainsDao domainsDao;
+
+    @Autowired
     ModelingService modelingService;
 
     @Autowired
@@ -54,18 +58,14 @@ public class ItemCache {
                 .build(
                         new CacheLoader<ComposedKey, Boolean>() {
                             public Boolean load(ComposedKey key) {
-                                try {
-                                    itemsDao.add(key.getDomainUri(), key.getResourceUri());
 
-                                    Long delay = delayCache.getDelay(key.getDomainUri());
+                                domainsDao.addDocument(key.getDomainUri(), key.getResourceUri());
 
-                                    modelingService.train(key.getDomainUri(),delay);
+                                Long delay = delayCache.getDelay(key.getDomainUri());
 
-                                    return true;
-                                } catch (DataNotFound dataNotFound) {
-                                    LOG.debug(dataNotFound.getMessage());
-                                    return false;
-                                }
+                                modelingService.train(key.getDomainUri(),delay);
+
+                                return true;
 
                             }
                         });

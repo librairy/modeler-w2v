@@ -12,16 +12,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.librairy.boot.model.domain.resources.Domain;
 import org.librairy.boot.storage.dao.DomainsDao;
+import org.librairy.boot.storage.dao.ItemsDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -38,6 +36,9 @@ public class DomainCache {
     @Autowired
     DomainsDao domainsDao;
 
+    @Autowired
+    ItemsDao itemsDao;
+
     LoadingCache<String, List<Domain>> cache;
 
     @PostConstruct
@@ -48,10 +49,10 @@ public class DomainCache {
                 .build(
                         new CacheLoader<String, List<Domain>>() {
                             public List<Domain> load(String uri) {
-                                return StreamSupport.stream(Spliterators.spliteratorUnknownSize(domainsDao.listFrom(uri), Spliterator.ORDERED), false)
+                                return itemsDao.listDomains(uri, 100, Optional.empty(), false).stream()
                                         .map(row -> {
                                             Domain domain = new Domain();
-                                            domain.setUri(row.getString(0));
+                                            domain.setUri(row.getUri());
                                             return domain;
                                         })
                                         .collect(Collectors.toList());

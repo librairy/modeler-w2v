@@ -9,7 +9,6 @@ package org.librairy.modeler.w2v.builder;
 
 import org.librairy.boot.storage.UDM;
 import org.librairy.boot.storage.system.column.repository.UnifiedColumnRepository;
-import org.librairy.boot.storage.system.graph.template.TemplateExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,6 @@ public class ModelCleaner {
     @Autowired
     UnifiedColumnRepository columnRepository;
 
-    @Autowired
-    TemplateExecutor graphExecutor;
 
     public void delete(String domainUri){
 
